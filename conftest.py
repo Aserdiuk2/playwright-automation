@@ -4,6 +4,7 @@ import pytest
 import logging
 from pytest import fixture
 from playwright.sync_api import sync_playwright
+from helpers.web_service import WebService
 from page_objects.application_page import App
 from settings import *
 
@@ -13,6 +14,17 @@ def precondition():
     logging.info('preconditions started')
     yield
     logging.info('postconditions started')
+
+
+@fixture(scope='session')
+def get_web_service(request):
+    base_url = request.config.getini('base_url')
+    secure = request.config.getoption('--secure')
+    config = load_config(secure)
+    web = WebService(base_url)
+    web.login(**config)
+    yield web
+    web.close()
 
 
 @fixture(scope='session')
